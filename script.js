@@ -59,6 +59,12 @@ const cubeMaterial = new THREE.MeshPhongMaterial({
 const cube = new THREE.Mesh( cubeGeometry, cubeMaterial );
 scene.add( cube );
 
+
+const geometry = new THREE.ConeGeometry( 5, 20, 32 );
+const material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+const cone = new THREE.Mesh( geometry, material );
+scene.add( cone );
+
 cube.rotation.z = 0;
 cube.rotation.x = 10;
 
