@@ -50,6 +50,8 @@ const colorWhite = new THREE.Color('hsl(106, 100%, 90%)')
 const width = 20;
 const height = 20;
 const depth = 20;
+
+//kostka
 const cubeGeometry = new THREE.BoxGeometry( width, height, depth );
 const cubeMaterial = new THREE.MeshPhongMaterial({
     color: colorWhite,
@@ -58,12 +60,6 @@ const cubeMaterial = new THREE.MeshPhongMaterial({
 
 const cube = new THREE.Mesh( cubeGeometry, cubeMaterial );
 scene.add( cube );
-
-
-const geometry = new THREE.ConeGeometry( 5, 20, 32 );
-const material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-const cone = new THREE.Mesh( geometry, material );
-scene.add( cone );
 
 cube.rotation.z = 0;
 cube.rotation.x = 10;
@@ -80,8 +76,28 @@ const animate = () => {
     cube.rotation.z += .04
     renderer.render( scene, camera );
 }
-animate()
 
+//stozek
+const coneGeometry = new THREE.ConeGeometry( 5, 20, 32 );
+const coneMaterial = new THREE.MeshPhongMaterial( {color: 0xffff00} );
+const cone = new THREE.Mesh( coneGeometry, coneMaterial );
+scene.add( cone );
+
+cone.position.x = -20;
+cone.position.y = 0;
+cone.position.z = 0;
+
+//cylinder
+const cylinderGeometry = new THREE.CylinderGeometry( 5, 5, 20, 20 );
+const cylinderMaterial = new THREE.MeshPhongMaterial( {color: 0xff0000} );      //basic - bez krawedzi
+const cylinder = new THREE.Mesh( cylinderGeometry, cylinderMaterial );
+scene.add( cylinder );
+
+cylinder.position.x = 0;
+cylinder.position.y = 0;
+cylinder.position.z = 0;
+
+animate()
 
 
 
