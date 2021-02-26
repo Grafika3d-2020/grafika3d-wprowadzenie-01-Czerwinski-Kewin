@@ -98,8 +98,3 @@ cylinder.position.y = 0;
 cylinder.position.z = 0;
 
 animate()
-
-
-
-
-
