@@ -1,50 +1,134 @@
-let scene, camera, renderer;
-function init() {
-    scene = new THREE.Scene();
+// Debug
+//const gui = new dat.GUI()
 
-    camera = new THREE.PerspectiveCamera(55,window.innerWidth/window.innerHeight,45,30000);
-    camera.position.set(-900,-200,-900);
+// Canvas
+const canvas = document.querySelector('canvas.webgl')
 
-    renderer = new THREE.WebGLRenderer({antialias:true});
-    renderer.setSize(window.innerWidth,window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+// Scene
+const scene = new THREE.Scene()
 
-    let controls = new THREE.OrbitControls(camera,renderer.domElement);
-    controls.update();
-    controls.minDistance = 500;
-    controls.maxDistance = 1500;
+// Objects
+const geometry = new THREE.TorusGeometry( .7, .2, 16, 100 );
+//const geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 );
+const particlesGeometry = new THREE.BufferGeometry();
+const particlesCount = 4000;
+const posArray = new Float32Array(particlesCount * 3);
 
-    let materialArray = []
-
-    let texture_ft = new THREE.TextureLoader().load('desertdawn_ft.jpg');
-    let texture_bk = new THREE.TextureLoader().load('desertdawn_bk.jpg');
-    let texture_up = new THREE.TextureLoader().load('desertdawn_up.jpg');
-    let texture_dn = new THREE.TextureLoader().load('desertdawn_dn.jpg');
-    let texture_rt = new THREE.TextureLoader().load('desertdawn_rt.jpg');
-    let texture_lf = new THREE.TextureLoader().load('desertdawn_lf.jpg');
-
-    materialArray.push(new THREE.MeshBasicMaterial({map: texture_ft}));
-    materialArray.push(new THREE.MeshBasicMaterial({map: texture_bk}));
-    materialArray.push(new THREE.MeshBasicMaterial({map: texture_up}));
-    materialArray.push(new THREE.MeshBasicMaterial({map: texture_dn}));
-    materialArray.push(new THREE.MeshBasicMaterial({map: texture_rt}));
-    materialArray.push(new THREE.MeshBasicMaterial({map: texture_lf}));
-
-    console.log(materialArray);
-
-    for(let i=0; i<6; i++){
-        materialArray[i].side = THREE.BackSide;
-    }
-
-    let skyboxGeo = new THREE.BoxGeometry( 10000, 10000, 10000);
-    let skybox = new THREE.Mesh( skyboxGeo, materialArray);
-    scene.add( skybox );
-    animate();
+for (let i=0; i < particlesCount; i++){
+    posArray[i] = (Math.random() - 0.5) * (Math.random()*5);
 }
 
-function animate() {
-    renderer.render(scene,camera);
-    requestAnimationFrame(animate);
+
+particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3))
+
+// Materials
+
+const material = new THREE.PointsMaterial({
+    size: 0.005,
+    color: 'magenta'
+})
+
+const materialParticles = new THREE.PointsMaterial({
+    size: 0.005,
+    color: 'green'
+})
+
+
+// Mesh
+const sphere = new THREE.Points(geometry,material)
+const particleMesh = new THREE.Points(particlesGeometry, materialParticles);
+scene.add(sphere, particleMesh);
+
+// Lights
+
+const pointLight = new THREE.PointLight(0xffffff, 0.1)
+pointLight.position.x = 2
+pointLight.position.y = 3
+pointLight.position.z = 4
+scene.add(pointLight)
+
+/**
+* Sizes
+*/
+const sizes = {
+width: window.innerWidth,
+height: window.innerHeight
 }
 
-init();
+window.addEventListener('resize', () =>
+{
+// Update sizes
+sizes.width = window.innerWidth
+sizes.height = window.innerHeight
+
+// Update camera
+camera.aspect = sizes.width / sizes.height
+camera.updateProjectionMatrix()
+
+// Update renderer
+renderer.setSize(sizes.width, sizes.height)
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+})
+
+/**
+* Camera
+*/
+// Base camera
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+camera.position.x = 0
+camera.position.y = 0
+camera.position.z = 2
+scene.add(camera)
+
+// Controls
+const controls = new THREE.OrbitControls(camera, canvas)
+controls.enableDamping = true
+
+/**
+* Renderer
+*/
+const renderer = new THREE.WebGLRenderer({
+canvas: canvas
+})
+renderer.setSize(sizes.width, sizes.height)
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+//Mouse
+let mouseX = 0;
+let mouseY = 0;
+
+document.addEventListener('mousemove', animateParticles);
+
+function animateParticles(event){
+    mouseX = event.clientX
+    mouseY = event.clientY
+    console.log(mouseX, mouseY);
+}
+
+/**
+* Animate
+*/
+
+const clock = new THREE.Clock()
+
+const loop = () =>
+{
+
+    const elapsedTime = clock.getElapsedTime()
+    console.log(elapsedTime)
+    // Update objects
+    sphere.rotation.y = 1.1 * elapsedTime
+
+    particleMesh.rotation.y = mouseX * (0.0001 * elapsedTime);
+    particleMesh.rotation.x = mouseY * (0.0001 * elapsedTime);
+    // Update Orbital Controls
+    controls.update()
+
+    // Render
+    renderer.render(scene, camera)
+
+    // Call tick again on the next frame
+    window.requestAnimationFrame(loop)
+}
+
+loop()
